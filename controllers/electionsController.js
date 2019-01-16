@@ -27,7 +27,19 @@ var controller = {
     }, // end getElectionsByOffice
 
     getElectionsByYear: (req, res) => {
-        let results = db.query(`SELECT * FROM elections WHERE office_id = ?`, [req.params.year], (err, results) => {
+        let results = db.query(`SELECT * FROM elections WHERE year(date) = ?`, [req.params.year], (err, results) => {
+            if (err) {
+                console.log(err);
+                res.send(err);
+            }
+            else {
+                res.json(results);
+            }
+        })
+    }, // end getElectionsByYear
+
+    getElectionsByDistrict: (req, res) => {
+        let results = db.query(`SELECT * FROM elections WHERE office_id = ? AND district = ?`, [req.params.office, req.params.district], (err), results => {
             if (err) {
                 console.log(err);
                 res.send(err);
