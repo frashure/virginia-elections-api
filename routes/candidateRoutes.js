@@ -4,6 +4,7 @@ const controller = require('../controllers/candidatesController');
 
 router.get('/', controller.getAllCandidates);
 router.get('/:office', controller.getCandidatesByOffice);
+router.get('/:office/:district', controller.getCandidatesByDistrict);
 
 /*
     TODO: get candidates by congressional district,
