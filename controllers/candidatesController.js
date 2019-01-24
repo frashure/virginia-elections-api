@@ -1,4 +1,6 @@
 const db = require('../models/db');
+const request = require('request');
+const https = require('https');
 
 var controller = {
 
@@ -55,7 +57,24 @@ var controller = {
                     res.json(results);
                 }
             })
-    } // end getCandidatesByDistrict
+    }, // end getCandidatesByDistrict
+
+    getCandidatesByAddress: async (req, res) => {
+        let address = req.params.address;
+        var payload = 'https://www.googleapis.com/civicinfo/v2/representatives?key='+process.env.CIVIC_KEY+'&address='+address;
+            request(payload, (error, response, body) => {
+                if (error) {
+                    res.send(error);
+                }
+                else {
+                    // console.log(body);
+                    body = JSON.parse(body);
+                    res.json(body.divisions);
+                }
+                });
+
+
+    } // end getCandidatesByAddress
 
 }; // end controller object
 
