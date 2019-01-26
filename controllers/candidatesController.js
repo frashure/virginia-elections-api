@@ -74,7 +74,42 @@ var controller = {
                 });
 
 
-    } // end getCandidatesByAddress
+    }, // end getCandidatesByAddress
+
+    getCandidatesAndTheirElections: (req, res) => {
+        db.query(`SELECT c.*, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
+            LEFT JOIN election_candidates ec
+                ON c.candidate_id = ec.candidate_id
+            LEFT JOIN elections e
+                on ec.election_id = e.election_id`, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        res.send(err);
+                    }
+                    else {
+                        // console.log(results);
+                        console.log(results[0].candidate_id);
+                        var candidates = [];
+                        for (var i = 0; i < results.length; i++) {
+                            candidates[i] = {};
+                            candidates[i].candidateID = results[i].candidate_id;
+                            candidates[i].firstName = results[i].first_name;
+                            candidates[i].lastName = results[i].last_name;
+                            candidates[i].party = results[i].party;
+
+                            if (results[i].election_id != null) {
+                                candidates[i].election = {};
+                                candidates[i].election.electionID = results[i].election_id;
+                                candidates[i].election.date = results[i].date;
+                                candidates[i].election.type = results[i].type;
+                                candidates[i].election.office = results[i].office_id;
+                                candidates[i].election.district = results[i].district;
+                            }
+                        };
+                        res.json(candidates);
+                    }
+                });
+    }
 
 }; // end controller object
 
