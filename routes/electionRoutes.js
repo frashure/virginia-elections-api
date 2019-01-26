@@ -3,6 +3,7 @@ const router = express.Router();
 const controller = require('../controllers/electionsController');
 
 router.get('/', controller.getAllElections);
+router.get('/candidates', controller.getAllElectionsCandidates);
 router.get('/:office', controller.getElectionsByOffice);
 router.get('/:year', controller.getElectionsByYear);
 router.get('/:office/:district', controller.getElectionsByDistrict);
