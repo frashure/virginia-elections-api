@@ -51,13 +51,15 @@ var controller = {
     },
 
     getAllElectionsCandidates: (req, res) => {
-        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name FROM elections e
+        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name
+            FROM elections e
             LEFT JOIN election_candidates ec
                 ON e.election_id = ec.election_id
             LEFT JOIN candidates c 
                 ON ec.candidate_id = c.candidate_id
             LEFT JOIN parties p
                 ON e.party_id = p.party_id
+            WHERE year(date) = 2019
             ORDER BY e.election_id;`, (err, results) => {
                 if (err) {
                     console.log(err);
@@ -99,6 +101,9 @@ var controller = {
 
                         }
                     }
+                    elections.sort((a, b) => {
+                        return a.district - b.district;
+                    });
                     res.send(elections);
                 }
             })
