@@ -39,7 +39,9 @@ var controller = {
 
     getCandidatesByDistrict: (req, res) => {
         let results = db.query(`
-        SELECT * FROM candidates
+        SELECT c.candidate_id, c.first_name, c.last_name, p.party_name, c.website FROM candidates c
+            LEFT JOIN parties p
+                ON c.party_id = p.party_id
         WHERE candidate_id IN (
             SELECT candidate_id
             FROM election_candidates
