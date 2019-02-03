@@ -5,19 +5,32 @@ const https = require('https');
 var controller = {
 
     getAllCandidates: (req, res) => {
-        var results = db.query('SELECT * FROM candidates', (err, results) => {
+        db.query(`SELECT c.*, p.party_name FROM candidates c
+                LEFT JOIN parties p
+                    ON c.party_id = p.party_id
+                ORDER BY c.last_name`, (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
             }
             else {
-                res.json(results);
+                var candidates = [];
+                for (let i = 0; i < results.length; i++) {
+                    let candidate = {
+                        firstName: results[i].first_name,
+                        lastName: results[i].last_name,
+                        party: results[i].party_name,
+                        website: results[i].website
+                    };
+                    candidates.push(candidate);
+                }
+                res.json(candidates);
             }
         });
     }, // end getAllCandidates
 
     getCandidatesByOffice: (req, res) => {
-        let results = db.query(`select c.first_name, c.last_name, c.website, p.party_name
+        db.query(`select c.first_name, c.last_name, c.website, p.party_name
         from election_candidates ec
             left join candidates c 
                 on ec.candidate_id = c.candidate_id
@@ -32,7 +45,17 @@ var controller = {
                     res.send(err);
                 }
                 else {
-                    res.json(results);
+                    var candidates = [];
+                    for (let i = 0; i < results.length; i++) {
+                        let candidate = {
+                            firstName: results[i].first_name,
+                            lastName: results[i].last_name,
+                            party: results[i].party_name,
+                            website: results[i].website
+                        };
+                        candidates.push(candidate);
+                    }
+                    res.json(candidates);
                 }
             })
     }, // end getCandidatesByOffice
@@ -56,7 +79,17 @@ var controller = {
                     res.send(err);
                 }
                 else {
-                    res.json(results);
+                    var candidates = [];
+                    for (let i = 0; i < results.length; i++) {
+                        let candidate = {
+                            firstName: results[i].first_name,
+                            lastName: results[i].last_name,
+                            party: results[i].party_name,
+                            website: results[i].website
+                        };
+                        candidates.push(candidate);
+                    }
+                    res.json(candidates);
                 }
             })
     }, // end getCandidatesByDistrict
@@ -89,8 +122,6 @@ var controller = {
                         res.send(err);
                     }
                     else {
-                        // console.log(results);
-                        console.log(results[0].candidate_id);
                         var candidates = [];
                         for (var i = 0; i < results.length; i++) {
                             candidates[i] = {};
