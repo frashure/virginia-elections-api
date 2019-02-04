@@ -116,7 +116,8 @@ var controller = {
             LEFT JOIN election_candidates ec
                 ON c.candidate_id = ec.candidate_id
             LEFT JOIN elections e
-                on ec.election_id = e.election_id`, (err, results) => {
+                on ec.election_id = e.election_id
+            ORDER BY c.last_name`, (err, results) => {
                     if (err) {
                         console.log(err);
                         res.send(err);
