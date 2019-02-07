@@ -102,9 +102,46 @@ var controller = {
                     res.send(error);
                 }
                 else {
-                    // console.log(body);
                     body = JSON.parse(body);
-                    res.json(body.divisions);
+
+                    let divisions = Object.keys(body.divisions);
+
+                    var statePattern = /ocd-division\/country:us\/state:va$/;
+                    var cdPattern = /ocd-division\/country:us\/state:va\/cd:/;
+                    var housePattern = /ocd-division\/country:us\/state:va\/sldl:/;
+                    var senatePattern = /ocd-division\/country:us\/state:va\/sldu:/;
+
+                    var state = '';
+                    var cd = '';
+                    var vahouse = '';
+                    var vasenate = '';
+
+                     for (let i = 0; i < divisions.length; i++) {
+                        if (!(divisions[i] = statePattern)) {
+                            res.send('Please enter an address in Virginia.');
+                            break;
+                        }
+                        if (divisions[i] = cdPattern) {
+                            cdTest = new RegExp(divisions[i]);
+                            console.log(divisions[i]);
+                            cd = cdTest.match(/ocd-division\/country:us\/state:va\/cd:(.*)/)[1];
+                            continue;
+                        }
+                        if(divisions[i] = housePattern) {
+                            vahouse = divisions[i].match(/ocd-division\/country:us\/state:va\/sldl:(.*)/)[1];
+                            continue;
+                        }
+                        if (divisions[i] = senatePattern) {
+                            vasenate = divisions[i].match(/ocd-division\/country:us\/state:va\/sldl:(.*)/)[1];
+                        }
+
+                    };
+
+                    let state2 = divisions[2];
+                    let cd2 = state2.match(/ocd-division\/country:us\/state:va\/cd:(.*)/)[1];
+                    console.log(cd2);
+                    console.log(typeof(divisions));
+                    res.send(divisions);
                 }
                 });
 
