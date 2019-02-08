@@ -1,6 +1,5 @@
 const db = require('../models/db');
 const request = require('request');
-const https = require('https');
 
 var controller = {
 
@@ -61,7 +60,7 @@ var controller = {
     }, // end getCandidatesByOffice
 
     getCandidatesByDistrict: (req, res) => {
-        let results = db.query(`
+        db.query(`
         SELECT c.candidate_id, c.first_name, c.last_name, p.party_name, c.website FROM candidates c
             LEFT JOIN parties p
                 ON c.party_id = p.party_id
@@ -106,42 +105,103 @@ var controller = {
 
                     let divisions = Object.keys(body.divisions);
 
-                    var statePattern = /ocd-division\/country:us\/state:va$/;
+                    var countyPattern = /ocd-division\/country:us$/
+                    var statePattern = /ocd-division\/country:us\/state:(\D{2}$)/;
+                    var vaPattern = /ocd-division\/country:us\/state:va$/;
                     var cdPattern = /ocd-division\/country:us\/state:va\/cd:/;
                     var housePattern = /ocd-division\/country:us\/state:va\/sldl:/;
                     var senatePattern = /ocd-division\/country:us\/state:va\/sldu:/;
 
-                    var state = '';
                     var cd = '';
                     var vahouse = '';
                     var vasenate = '';
 
+                    console.log('Outside of for: ' + typeof(divisions[1]));
+                    console.log(divisions[0].match(countyPattern));
+
                      for (let i = 0; i < divisions.length; i++) {
-                        if (!(divisions[i] = statePattern)) {
-                            res.send('Please enter an address in Virginia.');
-                            break;
-                        }
-                        if (divisions[i] = cdPattern) {
-                            cdTest = new RegExp(divisions[i]);
-                            console.log(divisions[i]);
-                            cd = cdTest.match(/ocd-division\/country:us\/state:va\/cd:(.*)/)[1];
+                        if (divisions[i].match(countyPattern) !== null) {
                             continue;
                         }
-                        if(divisions[i] = housePattern) {
+                        else if (divisions[i].match(statePattern) !== null) {
+                            if (divisions[i].match(vaPattern) !== null) {
+                                continue;
+                            }
+                            else {
+                                console.log('Wrong state');
+                                var wrongState = 'Please enter an address in Virginia';
+                                break;
+                            }
+                        }
+                        else if (divisions[i].match(cdPattern) !== null) {
+                            console.log('CD pattern matches!');
+                            cd = divisions[i].match(/ocd-division\/country:us\/state:va\/cd:(.*)/)[1];
+                            continue;
+                        }
+                        else if (divisions[i].match(housePattern) !== null) {
+                            console.log('House pattern matches!');
                             vahouse = divisions[i].match(/ocd-division\/country:us\/state:va\/sldl:(.*)/)[1];
                             continue;
                         }
-                        if (divisions[i] = senatePattern) {
-                            vasenate = divisions[i].match(/ocd-division\/country:us\/state:va\/sldl:(.*)/)[1];
+                        else if (divisions[i].match(senatePattern) !== null) {
+                            vasenate = divisions[i].match(/ocd-division\/country:us\/state:va\/sldu:(.*)/)[1];
                         }
 
                     };
-
-                    let state2 = divisions[2];
-                    let cd2 = state2.match(/ocd-division\/country:us\/state:va\/cd:(.*)/)[1];
-                    console.log(cd2);
-                    console.log(typeof(divisions));
-                    res.send(divisions);
+                    if (wrongState) {
+                        res.send(wrongState);
+                    }
+                    else {
+                        districts = {
+                            "CD": cd,
+                            "House": vahouse,
+                            "Senate": vasenate
+                        };
+                        db.query(`SELECT c.*, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
+                        LEFT JOIN election_candidates ec
+                            ON c.candidate_id = ec.candidate_id
+                        LEFT JOIN elections e
+                            on ec.election_id = e.election_id
+                        WHERE
+                            YEAR(date) = 2019
+                        AND (
+                            (office_id = 'president')
+                        OR
+                            (office_id = 'ussenate')
+                        OR
+                            (office_id = 'ushouse' AND district = ?)
+                        OR
+                            (office_id = 'vahouse' AND district = ?)
+                        OR 
+                            (office_id = 'vasenate' AND district = ?))
+                        ORDER BY c.last_name`, [districts.cd, districts.house, districts.senate], (err, results) => {
+                            if (err) {
+                                console.log(err);
+                                res.send(err);
+                            }
+                            else {
+                                var candidates = [];
+                                for (var i = 0; i < results.length; i++) {
+                                    candidates[i] = {};
+                                    candidates[i].candidateID = results[i].candidate_id;
+                                    candidates[i].firstName = results[i].first_name;
+                                    candidates[i].lastName = results[i].last_name;
+                                    candidates[i].party = results[i].party;
+        
+                                    if (results[i].election_id != null) {
+                                        candidates[i].election = {};
+                                        candidates[i].election.electionID = results[i].election_id;
+                                        candidates[i].election.date = results[i].date;
+                                        candidates[i].election.type = results[i].type;
+                                        candidates[i].election.office = results[i].office_id;
+                                        candidates[i].election.district = results[i].district;
+                                    }
+                                };
+                                res.json(candidates);
+                            }
+                        });
+                    }
+                    
                 }
                 });
 
