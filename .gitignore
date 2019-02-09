@@ -1,6 +1,5 @@
 node_modules/
 .env
-db_resources/candidate_tracker.xlsx
 db_resources/~$candidate_tracker.xlsx
 db_resources/new_ec_inserts.csv
 db_resources/new_imports.csv
