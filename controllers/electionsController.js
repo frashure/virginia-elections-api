@@ -349,9 +349,9 @@ var controller = {
                     }
                     else {
                         districts = {
-                            "CD": cd,
-                            "House": vahouse,
-                            "Senate": vasenate
+                            "cd": cd,
+                            "house": vahouse,
+                            "senate": vasenate
                         };
                         db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name
                         FROM elections e
@@ -378,6 +378,7 @@ var controller = {
                                 res.send(err);
                             }
                             else {
+                                console.log(results);
                                 var elections = [];
                                 let j = 0;
                                 for (let i = 0; i < results.length; i++) {
