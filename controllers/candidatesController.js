@@ -153,9 +153,9 @@ var controller = {
                     }
                     else {
                         districts = {
-                            "CD": cd,
-                            "House": vahouse,
-                            "Senate": vasenate
+                            "cd": cd,
+                            "house": vahouse,
+                            "senate": vasenate
                         };
                         db.query(`SELECT c.*, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
                         LEFT JOIN election_candidates ec
@@ -180,6 +180,7 @@ var controller = {
                                 res.send(err);
                             }
                             else {
+                                console.log(results);
                                 var candidates = [];
                                 for (var i = 0; i < results.length; i++) {
                                     candidates[i] = {};
