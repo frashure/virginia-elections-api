@@ -378,7 +378,6 @@ var controller = {
                                 res.send(err);
                             }
                             else {
-                                console.log(results);
                                 var elections = [];
                                 let j = 0;
                                 for (let i = 0; i < results.length; i++) {
