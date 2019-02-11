@@ -5,12 +5,15 @@ var controller = {
         let address = req.params.address;
         var payload = 'https://www.googleapis.com/civicinfo/v2/representatives?key='+process.env.CIVIC_KEY+'&address='+address;
             request(payload, (error, response, body) => {
+                body = JSON.parse(body);
                 if (error) {
                     res.send(error);
                 }
-                else {
-                    body = JSON.parse(body);
-
+                else if (body.error) {
+                    console.log(body.error.errors)
+                    res.send(body.error);
+                }
+                else if (!body.error) {
                     let divisions = Object.keys(body.divisions);
 
                     var countyPattern = /ocd-division\/country:us$/
