@@ -3,3 +3,4 @@ node_modules/
 db_resources/~$candidate_tracker.xlsx
 db_resources/new_ec_inserts.csv
 db_resources/new_imports.csv
+db_resources/elections_data.csv
