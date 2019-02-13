@@ -32,7 +32,7 @@
             var address = document.getElementById('name-field').value;
 
             var request = new XMLHttpRequest();
-            var url = 'http://localhost:3000/elections/address/'+address;
+            var url = 'http://api.virginiaelects.com/elections/address/'+address;
             request.open('GET', url);
             console.log(url);
 
