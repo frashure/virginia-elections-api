@@ -302,7 +302,6 @@ var controller = {
                     res.send(body.error);
                 }
                 else if (!body.error) {
-                    console.log(body);
 
                     let divisions = Object.keys(body.divisions);
 
@@ -316,9 +315,6 @@ var controller = {
                     var cd = '';
                     var vahouse = '';
                     var vasenate = '';
-
-                    console.log('Outside of for: ' + typeof(divisions[1]));
-                    console.log(divisions[0].match(countyPattern));
 
                      for (let i = 0; i < divisions.length; i++) {
                         if (divisions[i].match(countyPattern) !== null) {
