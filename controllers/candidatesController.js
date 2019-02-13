@@ -190,7 +190,7 @@ var controller = {
                                     candidates[i].candidateID = results[i].candidate_id;
                                     candidates[i].firstName = results[i].first_name;
                                     candidates[i].lastName = results[i].last_name;
-                                    candidates[i].party = results[i].party;
+                                    candidates[i].party = results[i].party_id;
         
                                     if (results[i].election_id != null) {
                                         candidates[i].election = {};
@@ -230,7 +230,7 @@ var controller = {
                             candidates[i].candidateID = results[i].candidate_id;
                             candidates[i].firstName = results[i].first_name;
                             candidates[i].lastName = results[i].last_name;
-                            candidates[i].party = results[i].party;
+                            candidates[i].party = results[i].party_id;
 
                             if (results[i].election_id != null) {
                                 candidates[i].election = {};
