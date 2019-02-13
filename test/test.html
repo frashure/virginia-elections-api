@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    </head>
+
+    <body>
+        <div id="address-form">
+            Enter address with spaces and no punctuation.<br>
+            Ex. 123 Street Ave City CA 12345<br>
+            <input type="text" id="name-field" onsubmit="getCandidates();"">
+            <button id="subBtn" type="button" onclick="getCandidates();">Submit</button>
+        </div>
+        <hr>
+        <div id="results-container">
+
+        </div>
+    </body>
+    <footer>
+        <script type="text/javascript">
+
+        document.getElementById("name-field").addEventListener("keyup", function(event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                document.getElementById("subBtn").click();
+            }
+        });
+
+            function getCandidates() {
+            console.log('Function called');
+            var container = document.getElementById("results-container");
+            var address = document.getElementById('name-field').value;
+
+            var request = new XMLHttpRequest();
+            var url = 'http://api.virginiaelects.com/elections/address/'+address;
+            request.open('GET', url);
+            console.log(url);
+
+            request.onload = () => {
+                console.log('Onload begun.');
+                var resultSet = JSON.parse(request.response);
+                if (request.status >= 200 && request.status < 400) {
+                    if (resultSet.errors) {
+                        console.log(resultSet.errors);
+                        while(container.firstChild) {
+                            container.removeChild(container.firstChild);
+                        }
+                        container.innerHTML = 'Unable to recognize address.';
+                    }
+                    else if (!resultSet.errors) {
+                        console.log('Successful request');
+                        while(container.firstChild) {
+                            container.removeChild(container.firstChild);
+                        }
+
+                        resultSet.forEach(election => {
+                        if (!election.candidates) {
+                            return;
+                        }
+                        
+                        var candidateCard = document.createElement('div');
+                        var office = document.createElement('p');
+                        office.innerHTML = 'Office: ' + election.office + ' ' + election.district;
+                        var office2 = document.createElement('p');
+                        office2.innerHTML = election.party + ' ' + election.type;
+                        candidateCard.appendChild(office);
+                        candidateCard.appendChild(office2);
+                        var candidatesHeader = document.createElement('p');
+                        candidatesHeader.innerHTML = 'Candidates:';
+                        candidateCard.appendChild(candidatesHeader);
+
+                        election.candidates.forEach(candidate => {
+                        var candidateName = document.createElement('p');
+                            candidateName.innerHTML = 'Name: ' + candidate.firstName + ' ' + candidate.lastName;
+
+                            candidateCard.appendChild(candidateName);
+                        });
+                        var lineBreak = document.createElement('br');
+                        candidateCard.appendChild(lineBreak) 
+                        container.appendChild(candidateCard);
+
+                    }) // end election foreach
+                    }
+                }
+            } // end request onload
+            request.send();
+            };
+        </script>
+    </footer>
+</html>
