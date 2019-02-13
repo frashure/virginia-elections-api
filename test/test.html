@@ -2,17 +2,14 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        
     </head>
 
     <body>
         <div id="address-form">
-        <form>
             Enter address with spaces and no punctuation.<br>
             Ex. 123 Street Ave City CA 12345<br>
-            <input type="text" id="name-field" name="address">
-            <button type="button" onclick="getCandidates();">Submit</button>
-        </form>
+            <input type="text" id="name-field" onsubmit="getCandidates();"">
+            <button id="subBtn" type="button" onclick="getCandidates();">Submit</button>
         </div>
         <hr>
         <div id="results-container">
@@ -20,7 +17,15 @@
         </div>
     </body>
     <footer>
-        <script>
+        <script type="text/javascript">
+
+        document.getElementById("name-field").addEventListener("keyup", function(event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                document.getElementById("subBtn").click();
+            }
+        });
+
             function getCandidates() {
             console.log('Function called');
             var container = document.getElementById("results-container");
