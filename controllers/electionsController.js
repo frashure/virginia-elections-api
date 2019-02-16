@@ -4,7 +4,10 @@ const request = require('request');
 var controller = {
 
     getAllElections: (req, res) => {
-        db.query('SELECT * FROM elections ORDER BY office_id, district', (err, results) => {
+        db.query(`SELECT e.*, p.party_name FROM elections e
+        LEFT JOIN parties p
+        ON e.party_id = p.party_id
+        ORDER BY office_id, district`, (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
