@@ -7,7 +7,7 @@ This API returns data on federal, statewide, and General Assembly elections and 
 
 The database has been hand-curated by me, using publicly available information from a variety of news sources. However, my primary source of information is the outstanding [Virginia Public Access Project](https://www.vpap.org/) which, apart from being a phenomenal source of information, is a huge inspiration as an organization.
 
-Addresses are match to districts using the [Google Civic Information API](https://developers.google.com/civic-information/). District numbers are parsed from the key names from the "divisions" array.
+Addresses are matched to districts using the [Google Civic Information API](https://developers.google.com/civic-information/). District numbers are parsed from the key names from the "divisions" array.
 
 
 ## Routes & Returned Data
