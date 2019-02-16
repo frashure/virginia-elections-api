@@ -122,6 +122,10 @@ Candidates have the following keys:
 - website
 - elections: Array of election objects in which the candidate appears. Not returned in every route. The election object omits the party key, as it is redundant in this instance.
 
+**/candidates**
+
+Returns all candidates in the database, ordered by last name.
+
 
 **/candidates/elections**
 
