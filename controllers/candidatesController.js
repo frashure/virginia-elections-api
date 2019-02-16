@@ -38,7 +38,8 @@ var controller = {
         where election_id in (
             select election_id
             from elections
-            where office_id = ?)`, [req.params.office], (err, results) => {
+            where office_id = ?
+            ORDER BY district)`, [req.params.office], (err, results) => {
                 if (err) {
                     console.log(err);
                     res.send(err);
@@ -119,9 +120,6 @@ var controller = {
                     var vahouse = '';
                     var vasenate = '';
 
-                    console.log('Outside of for: ' + typeof(divisions[1]));
-                    console.log(divisions[0].match(countyPattern));
-
                      for (let i = 0; i < divisions.length; i++) {
                         if (divisions[i].match(countyPattern) !== null) {
                             continue;
@@ -160,11 +158,13 @@ var controller = {
                             "house": vahouse,
                             "senate": vasenate
                         };
-                        db.query(`SELECT c.*, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
+                        db.query(`SELECT c.*, p.party_name, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
                         LEFT JOIN election_candidates ec
                             ON c.candidate_id = ec.candidate_id
                         LEFT JOIN elections e
                             on ec.election_id = e.election_id
+                        LEFT JOIN parties p
+                            on c.party_id = p.party_id
                         WHERE
                             YEAR(date) = 2019
                         AND (
@@ -183,14 +183,13 @@ var controller = {
                                 res.send(err);
                             }
                             else {
-                                console.log(results);
                                 var candidates = [];
                                 for (var i = 0; i < results.length; i++) {
                                     candidates[i] = {};
                                     candidates[i].candidateID = results[i].candidate_id;
                                     candidates[i].firstName = results[i].first_name;
                                     candidates[i].lastName = results[i].last_name;
-                                    candidates[i].party = results[i].party_id;
+                                    candidates[i].party = results[i].party_name;
         
                                     if (results[i].election_id != null) {
                                         candidates[i].election = {};
@@ -213,11 +212,13 @@ var controller = {
     }, // end getCandidatesByAddress
 
     getCandidatesAndTheirElections: (req, res) => {
-        db.query(`SELECT c.*, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
+        db.query(`SELECT c.*, p.party_name, e.election_id, e.date, e.type, e.district, e.office_id, e.party_id FROM candidates c
             LEFT JOIN election_candidates ec
                 ON c.candidate_id = ec.candidate_id
             LEFT JOIN elections e
-                on ec.election_id = e.election_id
+                ON ec.election_id = e.election_id
+            LEFT JOIN parties p
+                ON c.candidate_id = p.party_id
             ORDER BY c.last_name`, (err, results) => {
                     if (err) {
                         console.log(err);
@@ -230,7 +231,7 @@ var controller = {
                             candidates[i].candidateID = results[i].candidate_id;
                             candidates[i].firstName = results[i].first_name;
                             candidates[i].lastName = results[i].last_name;
-                            candidates[i].party = results[i].party_id;
+                            candidates[i].party = results[i].party_name;
 
                             if (results[i].election_id != null) {
                                 candidates[i].election = {};
