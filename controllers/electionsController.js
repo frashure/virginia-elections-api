@@ -115,7 +115,7 @@ var controller = {
             LEFT JOIN candidates c 
                 ON ec.candidate_id = c.candidate_id
             LEFT JOIN parties p
-                ON e.party_id = p.party_id
+                ON c.party_id = p.party_id
             WHERE year(date) = 2019
             ORDER BY e.election_id;`, (err, results) => {
                 if (err) {
@@ -174,7 +174,7 @@ var controller = {
         LEFT JOIN candidates c 
             ON ec.candidate_id = c.candidate_id
         LEFT JOIN parties p
-            ON e.party_id = p.party_id
+            ON c.party_id = p.party_id
         WHERE year(date) = 2019
         AND office_id = ?
         AND ec.candidate_id IS NOT NULL
@@ -235,7 +235,7 @@ var controller = {
         LEFT JOIN candidates c 
             ON ec.candidate_id = c.candidate_id
         LEFT JOIN parties p
-            ON e.party_id = p.party_id
+            ON c.party_id = p.party_id
         WHERE year(date) = 2019
         AND office_id = ?
         AND district = ?
@@ -361,7 +361,7 @@ var controller = {
                         LEFT JOIN candidates c 
                             ON ec.candidate_id = c.candidate_id
                         LEFT JOIN parties p
-                            ON e.party_id = p.party_id
+                            ON c.party_id = p.party_id
                         WHERE YEAR(date) = 2019
                         AND (
                             (office_id = 'president')
