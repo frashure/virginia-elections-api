@@ -1,6 +1,6 @@
 # Virginia Elections API
 
-This API returns data on federal, statewide, and General Assembly elections and candidate in the Commonwealth of Virginia. The API is available from api.virginiaelects.com (the root path redirects to this GitHub repo).
+This API returns data on federal, statewide, and General Assembly elections and candidates in the Commonwealth of Virginia. The API is available from api.virginiaelects.com (the root path redirects to this GitHub repo).
 
 
 ## The Data
