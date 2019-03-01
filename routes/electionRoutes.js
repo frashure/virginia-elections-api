@@ -11,10 +11,4 @@ router.get('/candidates', controller.getAllElectionsCandidates);
 router.get('/candidates/office/:office', controller.getCandidatesByOffice);
 router.get('/candidates/office/:office/district/:district', controller.getCandidatesByDistrict);
 
-/*
-    TODO: get elections by congressional district,
-    need to pass params through Google Civic Info API,
-    parse OCID for finding districts attached to address
-*/
-
 module.exports = router;
