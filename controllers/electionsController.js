@@ -7,6 +7,8 @@ var controller = {
         db.query(`SELECT e.*, p.party_name FROM elections e
         LEFT JOIN parties p
         ON e.party_id = p.party_id
+        LEFT JOIN election_results er
+        ON e.election_id = 
         ORDER BY office_id, district`, (err, results) => {
             if (err) {
                 console.log(err);
@@ -111,16 +113,18 @@ var controller = {
     },
 
     getAllElectionsCandidates: (req, res) => {
-        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name
-            FROM elections e
-            LEFT JOIN election_candidates ec
-                ON e.election_id = ec.election_id
-            LEFT JOIN candidates c 
-                ON ec.candidate_id = c.candidate_id
-            LEFT JOIN parties p
-                ON c.party_id = p.party_id
-            WHERE year(date) = 2019
-            ORDER BY e.election_id;`, (err, results) => {
+        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name, er.num_votes, er.winner
+        FROM elections e
+        LEFT JOIN election_candidates ec
+            ON e.election_id = ec.election_id
+        LEFT JOIN candidates c 
+            ON ec.candidate_id = c.candidate_id
+        LEFT JOIN parties p
+            ON c.party_id = p.party_id
+        LEFT JOIN election_results er
+            ON c.candidate_id = er.candidate_id
+        WHERE year(date) = 2019
+        ORDER BY e.election_id;`, (err, results) => {
                 if (err) {
                     console.log(err);
                     res.send(err);
@@ -159,6 +163,29 @@ var controller = {
                             }
                             elections[k].candidates.push(newCandidate);
 
+                            // need to account for write in votes; requires rewriting sql select
+                            if (results[i].num_votes != null) {
+                                if (!("results" in elections[k])) {
+                                    elections[k].results = [];
+                                }
+
+                                let winner;
+
+                                switch (results[i].winner) {
+                                    case 0: winner = 'no'
+                                    break;
+                                    case 1: winner = 'yes'
+                                    break;
+                                }
+
+                                let candidateResult = {
+                                    candidate: results[i].first_name + ' ' + results[i].last_name,
+                                    votes: results[i].num_votes,
+                                    winner: winner
+                                }
+                                elections[k].results.push(candidateResult);
+                            }
+
                         }
                     }
                     elections.sort((a, b) => {
@@ -170,7 +197,7 @@ var controller = {
     }, // end getAllElectionsCandidates
 
     getCandidatesByOffice: (req, res) => {
-        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name
+        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name, er.num_votes, er.winner
         FROM elections e
         LEFT JOIN election_candidates ec
             ON e.election_id = ec.election_id
@@ -178,6 +205,8 @@ var controller = {
             ON ec.candidate_id = c.candidate_id
         LEFT JOIN parties p
             ON c.party_id = p.party_id
+        LEFT JOIN election_results er
+            ON c.candidate_id = er.candidate_id
         WHERE year(date) = 2019
         AND office_id = ?
         AND ec.candidate_id IS NOT NULL
@@ -220,6 +249,27 @@ var controller = {
                         }
                         elections[k].candidates.push(newCandidate);
 
+                        if (!("results" in elections[k])) {
+                            elections[k].results = [];
+                        }
+                        
+                        let winner;
+                        
+                        switch (results[i].winner) {
+                            case 1: winner = 'yes';
+                            break;
+                            case 0: winner = 'no';
+                            break;
+                        }
+
+                        let candidateResults = {
+                            candidate: results[i].first_name + ' ' + results[i].last_name,
+                            party: results[i].party_name,
+                            votes: results[i].num_votes,
+                            winner: winner
+                        };
+
+                        elections[k].results.push(candidateResults);
                     }
                 }
                 elections.sort((a, b) => {
@@ -231,7 +281,7 @@ var controller = {
     }, // end getCandidatesByOffice
 
     getCandidatesByDistrict: (req, res) => {
-        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name
+        db.query(`SELECT e.*, c.*, ec.election_id AS candidate_election, p.party_name, er.num_votes, er.winner
         FROM elections e
         LEFT JOIN election_candidates ec
             ON e.election_id = ec.election_id
@@ -239,6 +289,8 @@ var controller = {
             ON ec.candidate_id = c.candidate_id
         LEFT JOIN parties p
             ON c.party_id = p.party_id
+        LEFT JOIN election_results er
+            ON c.candidate_id = er.candidate_id
         WHERE year(date) = 2019
         AND office_id = ?
         AND district = ?
@@ -281,6 +333,28 @@ var controller = {
                             website: results[i].website
                         }
                         elections[k].candidates.push(newCandidate);
+
+                        if (!("results" in elections[k])) {
+                            elections[k].results = [];
+                        }
+
+                        let winner;
+
+                        switch (results[i].winner) {
+                            case 0: winner = 'no';
+                            break;
+                            case 1: winner = 'yes';
+                            break;
+                        }
+
+                        let candidateResult = {
+                            candidate: results[i].first_name + ' ' + results[i].last_name,
+                            party: results[i].party_name,
+                            votes: results[i].num_votes,
+                            winner: winner
+                        }
+
+                        elections[k].results.push(candidateResult);
 
                     }
                 }
@@ -414,7 +488,28 @@ var controller = {
                                             website: results[i].website
                                         }
                                         elections[k].candidates.push(newCandidate);
-            
+
+                                        if (!("results" in elections[k])) {
+                                            elections[k].results = [];
+                                        }
+
+                                        let winner;
+
+                                        switch (results[k].winner) {
+                                            case 0: winner = 'no';
+                                            break;
+                                            case 1: winner = 'yes';
+                                            break;
+                                        }
+
+                                        let candidateResult = {
+                                            candidate: results[k].first_name + ' ' + results[k].last_name,
+                                            party: results[k].party_name,
+                                            votes: result[k].num_votes,
+                                            winner: winner
+                                        }
+
+                                        elections[k].results.push(candidateResult);        
                                     }
                                 }
                                 elections.sort((a, b) => {
