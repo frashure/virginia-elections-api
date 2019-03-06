@@ -130,10 +130,15 @@ var controller = {
                     res.send(err);
                 }
                 else {
+
+                    // build general elections
                     var elections = [];
                     let j = 0;
                     for (let i = 0; i < results.length; i++) {
                         if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
+                            continue;
+                        }
+                        if (results[i].type == 'primary') {
                             continue;
                         }
                         elections[j] = {};
@@ -149,8 +154,10 @@ var controller = {
                         }
                         j++;
                     }
+
+                    // build general election candidates
                     for (let i = 0; i < results.length; i++) {
-                        if (results[i].candidate_id) {
+                        if (results[i].candidate_id && results[i].type != 'primary') {
                             let k = elections.findIndex(x => x.electionID == results[i].candidate_election);
                             if (!("candidates" in elections[k])) {
                                 elections[k].candidates = [];
@@ -185,14 +192,59 @@ var controller = {
                                 }
                                 elections[k].results.push(candidateResult);
                             }
-
                         }
                     }
+
+                    // build primaries
+                    for (let i = 0; i < results.length; i++) {
+                        if (results[i].type == 'general' || results[i].type == 'special') {
+                            continue;
+                        }
+
+                        // if true here, we have already created this primary, need to add the next candidate
+                        if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
+                            let k = elections.findIndex(x => x.electionID == results[i].primary_for);
+                                let candidate = {
+                                    firstName: results[i].first_name,
+                                    lastName: results[i].last_name,
+                                    website: results[i].website
+                                }
+                                
+                                let m = elections[k].nominations.findIndex(x => x.electionID == results[i].election_id);
+                                elections[k].nominations[m].candidates.push(candidate);
+                                continue;
+                            }
+                        
+
+                        // else here means primary election has not yet been created, so we create it and add the first candidate
+                        else {
+                            let k = elections.findIndex(x => x.electionID == results[i].primary_for);
+                            if (!("nominations" in elections[k])) {
+                                elections[k].nominations = [];
+                            }
+    
+                            let primary = {
+                                electionID: results[i].election_id,
+                                party: results[i].party_name,
+                                candidates: []
+                            }
+
+                            let firstCandidate = {
+                                firstName: results[i].first_name,
+                                lastName: results[i].last_name,
+                                website: results[i].website
+                            }
+
+                            primary.candidates.push(firstCandidate);
+                            elections[k].nominations.push(primary);
+                        }
+                    }
+
                     elections.sort((a, b) => {
                         return a.district - b.district;
                     });
                     res.send(elections);
-                }
+                } // end main else
             })
     }, // end getAllElectionsCandidates
 
