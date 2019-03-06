@@ -87,7 +87,9 @@ var controller = {
     }, // end getElectionsByYear
 
     getElectionsByDistrict: (req, res) => {
-        db.query(`SELECT * FROM elections WHERE office_id = ? AND district = ?`, [req.params.office, req.params.district], (err, results) => {
+        db.query(`SELECT * FROM elections
+                WHERE office_id = ? 
+                AND district = ?`, [req.params.office, req.params.district], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -226,16 +228,18 @@ var controller = {
                             let primary = {
                                 electionID: results[i].election_id,
                                 party: results[i].party_name,
+                                date: results[i].date,
                                 candidates: []
                             }
-
-                            let firstCandidate = {
-                                firstName: results[i].first_name,
-                                lastName: results[i].last_name,
-                                website: results[i].website
+                            if (results[i].candidate_id != null) {
+                                let firstCandidate = {
+                                    firstName: results[i].first_name,
+                                    lastName: results[i].last_name,
+                                    website: results[i].website
+                                }
+                                primary.candidates.push(firstCandidate);
                             }
-
-                            primary.candidates.push(firstCandidate);
+                            
                             elections[k].nominations.push(primary);
                         }
                     }
