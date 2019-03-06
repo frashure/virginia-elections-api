@@ -19,7 +19,7 @@ Routes are divided into three primary categories: elections, candidates, and dis
 *NOTE ON GENERAL ASSEMBLY CANDIDATES*: All non-independent andidates are first associated with a primary election even if they are currently running unopposed; this is a data management issue as I would have to regularly remove candidates from the relationship to a general election each time a race became contested. Additionally, due to the myriad of dates on which conventions take place for committees that opt to nominate candidates by that method, all nomination contests will be classified as primaries with a date corresponding to the statewide primary date. Once a candidate has secured the nomination or the filing deadline for that election has passed, the nominee will be associated with the general election (all independent candidates are immediately associated with the general election).
 
 
-### /elections
+### Elections
 
 Elections have the following keys:
 - electionID: A unique identifier used primarily for relational purposes
@@ -111,7 +111,7 @@ Takes in an office identifier and a numerical district as parameters and returns
 Returns all elections for all offices for the current calendar year along with an array of candidate objects ("candidates" key) for each election. Results are sorted by district. Differs from the /elections root route by inclusion of the candidate array.
 
 
-### /candidates
+### Candidates
 
 Candidates have the following keys:
 - candidateID: Unique identifier, generally not returned.
@@ -209,7 +209,7 @@ Takes in an office identifier parameter and returns all candidates running in el
 Takes in an office identifier and a district number and returns all candidates running in elections for that office and district. Results are ordered by district number.
 
 
-### /districts
+### Districts
 
 District objects have the following keys:
 - cd: Congressional district
