@@ -6,9 +6,9 @@ var controller = {
     getAllElections: (req, res) => {
         db.query(`SELECT e.*, p.party_name FROM elections e
         LEFT JOIN parties p
-        ON e.party_id = p.party_id
+            ON e.party_id = p.party_id
         LEFT JOIN election_results er
-        ON e.election_id = 
+            ON e.election_id = er.election_id
         ORDER BY office_id, district`, (err, results) => {
             if (err) {
                 console.log(err);
