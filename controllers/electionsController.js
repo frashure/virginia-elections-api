@@ -1,114 +1,117 @@
 const db =  require('../models/db');
 const request = require('request');
 
+buildElections = (results) => {
+    let j = 0;
+    var elections = [];
+    var primaries = [];
+    for (let i = 0; i < results.length; i++) {
+        if (results[i].type == 'primary') {
+            let primary = {
+                electionID: results[i].election_id,
+                generalID: results[i].primary_for,
+                date: results[i].date,
+                party: results[i].party_name
+            };
+            primaries.push(primary);
+            continue;
+        }
+        elections[j] = {};
+        elections[j].electionID = results[i].election_id;
+        elections[j].date = results[i].date;
+        elections[j].type = results[i].type;
+        if (results[i].type == 'primary') {
+            elections[i].party = results[i].party_name;
+        }
+        elections[j].office = results[i].office_id;
+        if (results[i].district != null) {
+            elections[j].district = results[i].district;
+        }
+        j++
+    }
+    primaries.forEach((p) => {
+        let k = elections.findIndex(x => x.electionID == p.generalID);
+        if (!("nominations" in elections[k])) {
+            elections[k].nominations = [];
+        }
+        elections[k].nominations.push(p);
+    });
+    elections.sort((a, b) => {
+        return a.district - b.district;
+    });
+    return elections;
+} // end buildElections function
+
 var controller = {
 
     getAllElections: (req, res) => {
-        db.query(`SELECT e.*, p.party_name FROM elections e
+        db.query(`SELECT e.*, p.party_name
+        FROM elections e
         LEFT JOIN parties p
             ON e.party_id = p.party_id
         LEFT JOIN election_results er
             ON e.election_id = er.election_id
-        ORDER BY office_id, district`, (err, results) => {
+        ORDER BY election_id`, (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
             }
             else {
-                var elections = [];
-                for (let i = 0; i < results.length; i++) {
-                    elections[i] = {};
-                    elections[i].electionID = results[i].election_id;
-                    elections[i].date = results[i].date;
-                    elections[i].type = results[i].type;
-                    if (results[i].type == 'primary') {
-                        elections[i].party = results[i].party_name;
-                    }
-                    elections[i].office = results[i].office_id;
-                    if (results[i].district != null) {
-                        elections[i].district = results[i].district;
-                    }
-                }
+                let elections = buildElections(results);
                 res.json(elections);
             }
         })
-    }, // end getAllElecctions
+    }, // end getAllElections
 
     getElectionsByOffice: (req, res) => {
-        db.query(`SELECT * FROM elections WHERE office_id = ? ORDER BY district`, [req.params.office], (err, results) => {
+        db.query(`SELECT *
+        FROM elections e
+         LEFT JOIN parties p
+                ON e.party_id = p.party_id
+        WHERE office_id = ?
+        ORDER BY election_id`, [req.params.office], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
             }
             else {
-                var elections = [];
-                for (let i = 0; i < results.length; i++) {
-                    elections[i] = {};
-                    elections[i].electionID = results[i].election_id;
-                    elections[i].date = results[i].date;
-                    elections[i].type = results[i].type;
-                    if (results[i].type == 'primary') {
-                        elections[i].party = results[i].party_name;
-                    }
-                    elections[i].office = results[i].office_id;
-                    if (results[i].district != null) {
-                        elections[i].district = results[i].district;
-                    }
-                }
+                let elections = buildElections(results);
                 res.json(elections);
             }
         })
     }, // end getElectionsByOffice
 
     getElectionsByYear: (req, res) => {
-        db.query(`SELECT * FROM elections WHERE year(date) = ? ORDER BY office_id, district`, [req.params.year], (err, results) => {
+        db.query(`SELECT *
+        FROM elections e
+            LEFT JOIN parties p
+                ON e.party_id = p.party_id
+        WHERE year(date) = ?
+        ORDER BY election_id`, [req.params.year], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
             }
             else {
-                var elections = [];
-                for (let i = 0; i < results.length; i++) {
-                    elections[i] = {};
-                    elections[i].electionID = results[i].election_id;
-                    elections[i].date = results[i].date;
-                    elections[i].type = results[i].type;
-                    if (results[i].type == 'primary') {
-                        elections[i].party = results[i].party_name;
-                    }
-                    elections[i].office = results[i].office_id;
-                    if (results[i].district != null) {
-                        elections[i].district = results[i].district;
-                    }
-                }
+                let elections = buildElections(results);
                 res.json(elections);
             }
         })
     }, // end getElectionsByYear
 
     getElectionsByDistrict: (req, res) => {
-        db.query(`SELECT * FROM elections
-                WHERE office_id = ? 
-                AND district = ?`, [req.params.office, req.params.district], (err, results) => {
+        db.query(`SELECT *
+            FROM elections e
+                LEFT JOIN parties p
+                    ON e.party_id = p.party_id
+            WHERE office_id = ? 
+            AND district = ?`, [req.params.office, req.params.district], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
             }
             else {
-                var elections = [];
-                for (let i = 0; i < results.length; i++) {
-                    elections[i] = {};
-                    elections[i].electionID = results[i].election_id;
-                    elections[i].date = results[i].date;
-                    elections[i].type = results[i].type;
-                    if (results[i].type == 'primary') {
-                        elections[i].party = results[i].party_name;
-                    }
-                    elections[i].office = results[i].office_id;
-                    if (results[i].district != null) {
-                        elections[i].district = results[i].district;
-                    }
-                }
+                let elections = buildElections(results);
                 res.json(elections);
             }
         })
