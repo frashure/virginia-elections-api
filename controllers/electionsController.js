@@ -5,30 +5,161 @@ buildElections = (results) => {
     let j = 0;
     var elections = [];
     var primaries = [];
+
     for (let i = 0; i < results.length; i++) {
         if (results[i].type == 'primary') {
+
+        // if true here, we have already created this primary, need to add the next candidate
+        if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
+            let k = primaries.findIndex(x => x.electionID == results[i].election_id);
+                let candidate = {
+                    firstName: results[i].first_name,
+                    lastName: results[i].last_name,
+                    website: results[i].website
+                }
+                
+                primaries[k].candidates.push(candidate);
+                continue;
+
+        }
+        // else here means we haven't yet created this primary, need to do so and add first candidate
+        else {
             let primary = {
                 electionID: results[i].election_id,
                 generalID: results[i].primary_for,
                 date: results[i].date,
                 party: results[i].party_name
             };
+            // since this is the first record of the specific election, will need to create the candidate array, add fist candidate;
+            // we will also need to check for for election results, create array if necessary
+            if (results[i].candidate_id != null) {
+                primary.candidates = [];
+
+                let firstCandidate = {
+                    firstName: results[i].first_name,
+                    lastName: results[i].last_name,
+                    website: results[i].website
+                }
+
+                primary.candidates.push(firstCandidate);
+            }
+
+            if (results[i].num_votes != null) {
+                primary.results = [];
+
+                let winner;
+
+                switch (results[i].winner) {
+                    case 1: winner = 'yes';
+                    break;
+                    case 0: winner = 'no';
+                    break;
+                }
+
+                let firstResult = {
+                    candidate: results[i].first_name + ' ' + results[i].last_name,
+                    numVotes: results[i].num_votes,
+                    winner: winner
+                }
+
+                primary.results.push(firstResult);
+                
+            }
+
             primaries.push(primary);
             continue;
         }
+
+    } // end primaries creation
+        
+    // check to see if election has already been created; if so, check for candidates attribute, and add candidate if it exists
+    // also need to check for results
+    else if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
+        if (results[i].candidate_id != null) {
+            let k = elections.findIndex(x => x.electionID == results[i].election_id);
+
+            let candidate = {
+                firstName: results[i].first_name,
+                lastName: results[i].last_name,
+                website: results[i].website
+            }
+
+            elections[k].candidates.push(candidate);
+
+            if (results[i].num_votes != null) {
+
+                let winner;
+
+                switch(results[i].winner) {
+                    case 0: winner = 'no';
+                    break;
+                    case 1: winner = 'yes';
+                    break;
+                }
+
+                let result = {
+                    candidate: results[i].first_name + ' ' + results[i].last_name,
+                    numVotes: results[i].num_votes,
+                    winner: winner
+                };
+
+                elections[k].results.push(result);
+
+            }
+
+        }
+        continue;        
+    }
+
+        // if we make it this far, the general election has not been created, we do so here;
+        // also add candidates and results arrays to object if necessary
         elections[j] = {};
         elections[j].electionID = results[i].election_id;
         elections[j].date = results[i].date;
         elections[j].type = results[i].type;
-        if (results[i].type == 'primary') {
-            elections[i].party = results[i].party_name;
-        }
         elections[j].office = results[i].office_id;
         if (results[i].district != null) {
             elections[j].district = results[i].district;
         }
+        if (results[i].candidate_id != null) {
+            elections[j].candidates = [];
+
+            let firstCandidate = {
+                firstName: results[i].first_name,
+                lastName: results[i].last_name,
+                party: results[i].party_name,
+                website: results[i].website
+            }
+
+            elections[j].candidates.push(firstCandidate);
+
+            let winner;
+
+            switch(results[i].winner) {
+                case 0: winner = 'no';
+                break;
+                case 1: winner = 'yes';
+                break;
+            }
+
+            if (results[i].num_votes != null) {
+                let firstResult = {
+                candidate: firstCandidate.firstName + ' ' + firstCandidate.lastName,
+                numVotes: results[i].num_votes,
+                winner: winner
+                }
+                elections[j].results = [];
+                elections[j].results.push(firstResult)
+            }
+
+
+        }
+
+
         j++
     }
+
+    // attach primary objects to respective general election object
     primaries.forEach((p) => {
         let k = elections.findIndex(x => x.electionID == p.generalID);
         if (!("nominations" in elections[k])) {
@@ -36,12 +167,17 @@ buildElections = (results) => {
         }
         elections[k].nominations.push(p);
     });
+
+
     elections.sort((a, b) => {
         return a.district - b.district;
     });
+
     return elections;
 } // end buildElections function
 
+
+// controller object
 var controller = {
 
     getAllElections: (req, res) => {
@@ -135,122 +271,8 @@ var controller = {
                     res.send(err);
                 }
                 else {
-
-                    // build general elections
-                    var elections = [];
-                    let j = 0;
-                    for (let i = 0; i < results.length; i++) {
-                        if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
-                            continue;
-                        }
-                        if (results[i].type == 'primary') {
-                            continue;
-                        }
-                        elections[j] = {};
-                        elections[j].electionID = results[i].election_id;
-                        elections[j].date = results[i].date;
-                        elections[j].type = results[i].type;
-                        if (results[i].type == 'primary') {
-                            elections[j].party = results[i].party_name;
-                        }
-                        elections[j].office = results[i].office_id;
-                        if (results[i].district != null) {
-                            elections[j].district = results[i].district;
-                        }
-                        j++;
-                    }
-
-                    // build general election candidates
-                    for (let i = 0; i < results.length; i++) {
-                        if (results[i].candidate_id && results[i].type != 'primary') {
-                            let k = elections.findIndex(x => x.electionID == results[i].candidate_election);
-                            if (!("candidates" in elections[k])) {
-                                elections[k].candidates = [];
-                            }
-                            let newCandidate = {
-                                firstName: results[i].first_name,
-                                lastName: results[i].last_name,
-                                party: results[i].party_name,
-                                website: results[i].website
-                            }
-                            elections[k].candidates.push(newCandidate);
-
-                            // need to account for write in votes; requires rewriting sql select
-                            if (results[i].num_votes != null) {
-                                if (!("results" in elections[k])) {
-                                    elections[k].results = [];
-                                }
-
-                                let winner;
-
-                                switch (results[i].winner) {
-                                    case 0: winner = 'no'
-                                    break;
-                                    case 1: winner = 'yes'
-                                    break;
-                                }
-
-                                let candidateResult = {
-                                    candidate: results[i].first_name + ' ' + results[i].last_name,
-                                    votes: results[i].num_votes,
-                                    winner: winner
-                                }
-                                elections[k].results.push(candidateResult);
-                            }
-                        }
-                    }
-
-                    // build primaries
-                    for (let i = 0; i < results.length; i++) {
-                        if (results[i].type == 'general' || results[i].type == 'special') {
-                            continue;
-                        }
-
-                        // if true here, we have already created this primary, need to add the next candidate
-                        if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
-                            let k = elections.findIndex(x => x.electionID == results[i].primary_for);
-                                let candidate = {
-                                    firstName: results[i].first_name,
-                                    lastName: results[i].last_name,
-                                    website: results[i].website
-                                }
-                                
-                                let m = elections[k].nominations.findIndex(x => x.electionID == results[i].election_id);
-                                elections[k].nominations[m].candidates.push(candidate);
-                                continue;
-                            }
-                        
-
-                        // else here means primary election has not yet been created, so we create it and add the first candidate
-                        else {
-                            let k = elections.findIndex(x => x.electionID == results[i].primary_for);
-                            if (!("nominations" in elections[k])) {
-                                elections[k].nominations = [];
-                            }
-    
-                            let primary = {
-                                electionID: results[i].election_id,
-                                party: results[i].party_name,
-                                date: results[i].date,
-                                candidates: []
-                            }
-                            if (results[i].candidate_id != null) {
-                                let firstCandidate = {
-                                    firstName: results[i].first_name,
-                                    lastName: results[i].last_name,
-                                    website: results[i].website
-                                }
-                                primary.candidates.push(firstCandidate);
-                            }
-                            
-                            elections[k].nominations.push(primary);
-                        }
-                    }
-
-                    elections.sort((a, b) => {
-                        return a.district - b.district;
-                    });
-                    res.send(elections);
+                    let elections = buildElections(results);
+                    res.json(elections);
                 } // end main else
             })
     }, // end getAllElectionsCandidates
@@ -275,66 +297,8 @@ var controller = {
                 res.send(err);
             }
             else {
-                var elections = [];
-                let j = 0;
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
-                        continue;
-                    }
-                    elections[j] = {};
-                    elections[j].electionID = results[i].election_id;
-                    elections[j].date = results[i].date;
-                    elections[j].type = results[i].type;
-                    if (results[i].type == 'primary') {
-                        elections[j].party = results[i].party_name;
-                    }
-                    elections[j].office = results[i].office_id;
-                    if (results[i].district != null) {
-                        elections[j].district = results[i].district;
-                    }
-                    j++;
-                }
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i].candidate_id) {
-                        let k = elections.findIndex(x => x.electionID == results[i].candidate_election);
-                        if (!("candidates" in elections[k])) {
-                            elections[k].candidates = [];
-                        }
-                        let newCandidate = {
-                            firstName: results[i].first_name,
-                            lastName: results[i].last_name,
-                            party: results[i].party_name,
-                            website: results[i].website
-                        }
-                        elections[k].candidates.push(newCandidate);
-
-                        if (!("results" in elections[k])) {
-                            elections[k].results = [];
-                        }
-                        
-                        let winner;
-                        
-                        switch (results[i].winner) {
-                            case 1: winner = 'yes';
-                            break;
-                            case 0: winner = 'no';
-                            break;
-                        }
-
-                        let candidateResults = {
-                            candidate: results[i].first_name + ' ' + results[i].last_name,
-                            party: results[i].party_name,
-                            votes: results[i].num_votes,
-                            winner: winner
-                        };
-
-                        elections[k].results.push(candidateResults);
-                    }
-                }
-                elections.sort((a, b) => {
-                    return a.district - b.district;
-                });
-                res.send(elections);
+                let elections = buildElections(results);
+                res.json(elections);
             }
         })
     }, // end getCandidatesByOffice
@@ -360,67 +324,8 @@ var controller = {
                 res.send(err);
             }
             else {
-                var elections = [];
-                let j = 0;
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
-                        continue;
-                    }
-                    elections[j] = {};
-                    elections[j].electionID = results[i].election_id;
-                    elections[j].date = results[i].date;
-                    elections[j].type = results[i].type;
-                    if (results[i].type == 'primary') {
-                        elections[j].party = results[i].party_name;
-                    }
-                    elections[j].office = results[i].office_id;
-                    if (results[i].district != null) {
-                        elections[j].district = results[i].district;
-                    }
-                    j++;
-                }
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i].candidate_id) {
-                        let k = elections.findIndex(x => x.electionID == results[i].candidate_election);
-                        if (!("candidates" in elections[k])) {
-                            elections[k].candidates = [];
-                        }
-                        let newCandidate = {
-                            firstName: results[i].first_name,
-                            lastName: results[i].last_name,
-                            party: results[i].party_name,
-                            website: results[i].website
-                        }
-                        elections[k].candidates.push(newCandidate);
-
-                        if (!("results" in elections[k])) {
-                            elections[k].results = [];
-                        }
-
-                        let winner;
-
-                        switch (results[i].winner) {
-                            case 0: winner = 'no';
-                            break;
-                            case 1: winner = 'yes';
-                            break;
-                        }
-
-                        let candidateResult = {
-                            candidate: results[i].first_name + ' ' + results[i].last_name,
-                            party: results[i].party_name,
-                            votes: results[i].num_votes,
-                            winner: winner
-                        }
-
-                        elections[k].results.push(candidateResult);
-
-                    }
-                }
-                elections.sort((a, b) => {
-                    return a.district - b.district;
-                });
-                res.send(elections);
+                let elections = buildElections(results);
+                res.json(elections);
             }
         })
     }, // end getCandidatesByDistrict
@@ -515,66 +420,8 @@ var controller = {
                                 res.send(err);
                             }
                             else {
-                                var elections = [];
-                                let j = 0;
-                                for (let i = 0; i < results.length; i++) {
-                                    if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
-                                        continue;
-                                    }
-                                    elections[j] = {};
-                                    elections[j].electionID = results[i].election_id;
-                                    elections[j].date = results[i].date;
-                                    elections[j].type = results[i].type;
-                                    if (results[i].type == 'primary') {
-                                        elections[j].party = results[i].party_name;
-                                    }
-                                    elections[j].office = results[i].office_id;
-                                    if (results[i].district != null) {
-                                        elections[j].district = results[i].district;
-                                    }
-                                    j++;
-                                }
-                                for (let i = 0; i < results.length; i++) {
-                                    if (results[i].candidate_id) {
-                                        let k = elections.findIndex(x => x.electionID == results[i].candidate_election);
-                                        if (!("candidates" in elections[k])) {
-                                            elections[k].candidates = [];
-                                        }
-                                        let newCandidate = {
-                                            firstName: results[i].first_name,
-                                            lastName: results[i].last_name,
-                                            party: results[i].party_name,
-                                            website: results[i].website
-                                        }
-                                        elections[k].candidates.push(newCandidate);
-
-                                        if (!("results" in elections[k])) {
-                                            elections[k].results = [];
-                                        }
-
-                                        let winner;
-
-                                        switch (results[k].winner) {
-                                            case 0: winner = 'no';
-                                            break;
-                                            case 1: winner = 'yes';
-                                            break;
-                                        }
-
-                                        let candidateResult = {
-                                            candidate: results[k].first_name + ' ' + results[k].last_name,
-                                            party: results[k].party_name,
-                                            votes: result[k].num_votes,
-                                            winner: winner
-                                        }
-
-                                        elections[k].results.push(candidateResult);        
-                                    }
-                                }
-                                elections.sort((a, b) => {
-                                    return a.district - b.district;
-                                });
-                                res.send(elections);
+                                let elections = buildElections(results);
+                                res.json(elections);
                             }
                         });
                     }
