@@ -29,36 +29,35 @@ Elections have the following keys:
 - office: Office IDs are as follows: president, ushouse, ussenate, vahouse, vasenate
 - district: Numerical district for congressional and General Assembly elections; statewide and presidential elections have a null district value, and will not return this key
 - candidates: An array of candidates running in that election; not returned on all routes
+- nominations: An array of primary elections corresponding to the general election
 
 
 **/elections**
 
-The root route of the /elections path returns all election data (currently limited to elections within the current calender year), ordered by office then by district.
+The root route of the /elections path returns all election data (currently limited to elections within the current calender year), ordered by office then by district. Primary elections are nested within their respesctive general election.
 *Example data:*
 ```
-[
-    {
-        "electionID": 1,
-        "date": "2020-11-03T00:00:00.000Z",
-        "type": "general",
-        "office": "president"
-    },
-    {
-        "electionID": 21,
-        "date": "2020-11-03T00:00:00.000Z",
-        "type": "general",
-        "office": "ushouse",
-        "district": 1
-    },
-    {
-        "electionID": 2291,
-        "date": "2019-06-11T04:00:00.000Z",
-        "type": "primary",
-        "party": "Republican",
-        "office": "vahouse",
-        "district": 1
-    }
-]
+{
+    "electionID": 261,
+    "date": "2019-11-05T05:00:00.000Z",
+    "type": "general",
+    "office": "vahouse",
+    "district": 14,
+    "nominations": [
+        {
+            "electionID": 1591,
+            "generalID": 261,
+            "date": "2019-06-11T04:00:00.000Z",
+            "party": "Democratic"
+        },
+        {
+            "electionID": 2371,
+            "generalID": 261,
+            "date": "2019-06-11T04:00:00.000Z",
+            "party": "Republican"
+        }
+    ]
+}
 ```
 
 **/elections/address/:address**
@@ -69,31 +68,28 @@ Election objects are returned along with an array of candidates running in that 
 
 *Example data*
 ```
-[
-    {
-        "electionID": 441,
-        "date": "2019-11-05T05:00:00.000Z",
-        "type": "general",
-        "office": "vahouse",
-        "district": 32
-    },
-    {
-        "electionID": 2941,
-        "date": "2019-06-11T04:00:00.000Z",
-        "type": "primary",
-        "party": "Democratic",
-        "office": "vahouse",
-        "district": 32,
-        "candidates": [
-            {
-                "firstName": "David",
-                "lastName": "Reid",
-                "party": "Democratic",
-                "website": "https://www.delegatedavidreid.com/"
-            }
-        ]
-    }
-]
+ {
+    "electionID": 1281,
+    "date": "2019-11-05T05:00:00.000Z",
+    "type": "general",
+    "office": "vasenate",
+    "district": 16,
+    "nominations": [
+        {
+            "electionID": 1901,
+            "generalID": 1281,
+            "date": "2019-06-11T04:00:00.000Z",
+            "party": "Democratic",
+            "candidates": [
+                {
+                    "firstName": "Rosalyn",
+                    "lastName": "Dance",
+                    "website": null
+                }
+            ]
+        }
+    ]
+}
 ```
 
 **/elections/office/:office**
@@ -109,6 +105,57 @@ Takes in an office identifier and a numerical district as parameters and returns
 **/elections/candidates**
 
 Returns all elections for all offices for the current calendar year along with an array of candidate objects ("candidates" key) for each election. Results are sorted by district. Differs from the /elections root route by inclusion of the candidate array.
+
+*example data*
+```
+{
+    "electionID": 1531,
+    "date": "2019-02-19T05:00:00.000Z",
+    "type": "special",
+    "office": "vahouse",
+    "district": 86,
+    "candidates": [
+        {
+            "firstName": "Ibraheem",
+            "lastName": "Samirah",
+            "party": "Democratic",
+            "website": "https://samirah4delegate.com/"
+        },
+        {
+            "firstName": "Gregg",
+            "lastName": "Nelson",
+            "party": "Republican",
+            "website": null
+        },
+        {
+            "firstName": "Connie",
+            "lastName": "Hutchinson",
+            "party": "Independent",
+            "website": "http://www.conniehutchinson.com/"
+        }
+    ],
+    "results": [
+        {
+            "candidate": "Ibraheem Samirah",
+            "party": "Democratic",
+            "numVotes": 3739,
+            "winner": "yes"
+        },
+        {
+            "candidate": "Gregg Nelson",
+            "party": "Republican",
+            "numVotes": 2162,
+            "winner": "no"
+        },
+        {
+            "candidate": "Connie Hutchinson",
+            "party": "Independent",
+            "numVotes": 370,
+            "winner": "no"
+        }
+    ]
+}
+```
 
 
 ### Candidates
