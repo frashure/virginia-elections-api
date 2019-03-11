@@ -35,6 +35,7 @@ Elections have the following keys:
 **/elections**
 
 The root route of the /elections path returns all election data (currently limited to elections within the current calender year), ordered by office then by district. Primary elections are nested within their respesctive general election.
+
 *Example data:*
 ```
 {
@@ -106,7 +107,7 @@ Takes in an office identifier and a numerical district as parameters and returns
 
 Returns all elections for all offices for the current calendar year along with an array of candidate objects ("candidates" key) for each election. Results are sorted by district. Differs from the /elections root route by inclusion of the candidate array.
 
-*example data*
+*Example data*
 ```
 {
     "electionID": 1531,
