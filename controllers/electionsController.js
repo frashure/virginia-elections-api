@@ -9,7 +9,7 @@ buildElections = (results) => {
     for (let i = 0; i < results.length; i++) {
         if (results[i].type == 'primary') {
 
-        // if true here, we have already created this primary, need to add the next candidate
+        // if true here, we have already created this primary, need to add the next candidate and result (if exists)
         if (results[i-1] != null && results[i].election_id == results[i-1].election_id) {
             let k = primaries.findIndex(x => x.electionID == results[i].election_id);
                 let candidate = {
@@ -19,6 +19,26 @@ buildElections = (results) => {
                 }
                 
                 primaries[k].candidates.push(candidate);
+
+                if (results[i].num_votes != null) {
+                    let winner;
+
+                    switch (winner) {
+                        case 0: winner = 'no';
+                        break;
+                        case 1: winner = 'yes';
+                        break;
+                    }
+
+                    let result = {
+                        candidate: results[i].first_name + ' ' + results[i].last_name,
+                        numVoes: results[i].num_votes,
+                        winner: winner
+                    }
+
+                    primaries[k].results.push(result);
+
+                }
                 continue;
 
         }
@@ -81,6 +101,7 @@ buildElections = (results) => {
             let candidate = {
                 firstName: results[i].first_name,
                 lastName: results[i].last_name,
+                party: results[i].party_name,
                 website: results[i].website
             }
 
@@ -99,6 +120,7 @@ buildElections = (results) => {
 
                 let result = {
                     candidate: results[i].first_name + ' ' + results[i].last_name,
+                    party: results[i].party_name,
                     numVotes: results[i].num_votes,
                     winner: winner
                 };
@@ -111,7 +133,7 @@ buildElections = (results) => {
         continue;        
     }
 
-        // if we make it this far, the general election has not been created, we do so here;
+        // if we make it this far, the general/special election has not been created, we do so here;
         // also add candidates and results arrays to object if necessary
         elections[j] = {};
         elections[j].electionID = results[i].election_id;
@@ -145,6 +167,7 @@ buildElections = (results) => {
             if (results[i].num_votes != null) {
                 let firstResult = {
                 candidate: firstCandidate.firstName + ' ' + firstCandidate.lastName,
+                party: results[i].party_name,
                 numVotes: results[i].num_votes,
                 winner: winner
                 }
