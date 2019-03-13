@@ -23,7 +23,7 @@ buildElections = (results) => {
                 if (results[i].num_votes != null) {
                     let winner;
 
-                    switch (winner) {
+                    switch (results[i].winner) {
                         case 0: winner = 'no';
                         break;
                         case 1: winner = 'yes';
