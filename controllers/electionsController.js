@@ -288,7 +288,7 @@ var controller = {
         LEFT JOIN election_results er
             ON c.candidate_id = er.candidate_id
         WHERE year(date) = 2019
-        ORDER BY e.election_id;`, (err, results) => {
+        ORDER BY e.election_id`, (err, results) => {
                 if (err) {
                     console.log(err);
                     res.send(err);
@@ -313,7 +313,6 @@ var controller = {
             ON c.candidate_id = er.candidate_id
         WHERE year(date) = 2019
         AND office_id = ?
-        AND ec.candidate_id IS NOT NULL
         ORDER BY e.election_id`, [req.params.office], (err, results) => {
             if (err) {
                 console.log(err);
@@ -340,7 +339,6 @@ var controller = {
         WHERE year(date) = 2019
         AND office_id = ?
         AND district = ?
-        AND ec.candidate_id IS NOT NULL
         ORDER BY e.election_id`, [req.params.office, req.params.district], (err, results) => {
             if (err) {
                 console.log(err);
