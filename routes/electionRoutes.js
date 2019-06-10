@@ -8,6 +8,7 @@ router.get('/office/:office', controller.getElectionsByOffice);
 router.get('/office/:office/district/:district', controller.getElectionsByDistrict);
 router.get('/year/:year', controller.getElectionsByYear);
 router.get('/candidates', controller.getAllElectionsCandidates);
+router.get('/candidates/address/:address', controller.getElectionsCandidatesByAddress);
 router.get('/candidates/office/:office', controller.getCandidatesByOffice);
 router.get('/candidates/office/:office/district/:district', controller.getCandidatesByDistrict);
 
