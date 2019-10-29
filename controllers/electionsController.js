@@ -32,7 +32,7 @@ buildElections = (results) => {
 
                     let result = {
                         candidate: results[i].first_name + ' ' + results[i].last_name,
-                        numVoes: results[i].num_votes,
+                        numVotes: results[i].num_votes,
                         winner: winner
                     }
 
