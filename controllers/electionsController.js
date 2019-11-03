@@ -15,7 +15,7 @@ buildElections = (results) => {
                 let candidate = {
                     firstName: results[i].first_name,
                     lastName: results[i].last_name,
-                    website: results[i].website
+                    // website: results[i].website
                 }
                 
                 primaries[k].candidates.push(candidate);
