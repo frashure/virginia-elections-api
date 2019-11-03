@@ -73,7 +73,7 @@
 
                         election.candidates.forEach(candidate => {
                         var candidateName = document.createElement('p');
-                            candidateName.innerHTML = 'Name: ' + candidate.firstName + ' ' + candidate.lastName;
+                            candidateName.innerHTML = 'Name: ' + candidate.firstName + ' ' + candidate.lastName + ' (' + candidate.party + ')';
 
                             candidateCard.appendChild(candidateName);
                         });
