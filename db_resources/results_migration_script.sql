@@ -98,11 +98,30 @@ create table stage_candidates (
     primary key (candidate_id)
 );
 
-update stage_results
-set election_type = 'primary'
-where election_type is null;
-
-select *
+insert into stage_candidates(sbe_id, first_name, middle_name, last_name, suffix, party)
+select distinct sbe_id, first_name, middle_name, last_name, suffix, party
 from stage_results
-where election_type not in ('primary', 'General');
-    
+where election_type = 'general'
+and last_name != 'write in votes';
+
+-- select elections into staging table from stage_results
+insert into stage_elections (`date`, office_id, district, `type`)
+select '2019-11-05', office, district, election_type
+from stage_results
+where election_type = 'general'
+group by office, district;
+
+-- select candidates into stage_elections_candidates from stage_results & stage_elections
+insert into stage_election_candidates (election_id, candidate_id)
+select e.election_id, c.candidate_id
+from stage_results r 
+	left join stage_candidates c 
+		on r.sbe_id = c.sbe_id
+	left join stage_elections e 
+		on r.office = e.office_id
+        and r.district = e.district
+where r.election_type = 'general'
+and r.last_name != 'write in votes'
+group by r.sbe_id
+order by r.office, r.district;
+	
