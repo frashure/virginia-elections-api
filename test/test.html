@@ -61,10 +61,8 @@
                         
                         var candidateCard = document.createElement('div');
                         var office = document.createElement('p');
-                        if (election.office = 'vasenate') {
-                            office.innerHTML = 'Office: State Senate' + ' ' + election.district;
-                        }
-                        else {office.innerHTML = 'Office: House of Delegates' + ' ' + election.district}
+                        var officeRename = (election.office == 'vasenate') ? 'State Senate':'House of Delegates';
+                        office.innerHTML = 'Office: ' + officeRename + ' ' + election.district;
                         var office2 = document.createElement('p');
                         // office2.innerHTML = election.party + ' ' + election.type;
                         candidateCard.appendChild(office);
