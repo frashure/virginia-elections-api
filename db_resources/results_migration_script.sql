@@ -66,12 +66,24 @@ set office = 'vasenate'
 where office = 'State Senate';
 
 -- update party to match current format
-update stage_results
+update results_csv
 set party = 'rep'
 where party = 'Republican';
-update stage_results
+update results_csv
 set party = 'dem'
 where party = 'Democratic';
+update results_csv
+set party = 'ind'
+where party = 'Independent';
+update results_csv
+set party = 'lib'
+where party = 'Libertarian';
+update results_csv
+set party = null
+where party = '';
+select *
+from results_csv
+where party not in ('dem', 'rep', 'ind', 'lib');
 
 select office, district, party
 from stage_results
@@ -142,14 +154,14 @@ select election_id, candidate_id
 from stage_election_candidates;
 
 -- select all candidates, results, and corresponding candidate and election IDs for insert into results table
-select c.candidate_id, c.sbe_id, e.election_id, r.first_name, r.middle_name, r.last_name, r.party, r.office, r.district, sum(r.votes)
+select c.candidate_id, e.election_id, r.first_name, r.middle_name, r.last_name, r.party, r.office, r.district, sum(r.votes)
 from results_csv r 
-	left join stage_candidates c 
+	left join candidates c 
 		on r.first_name = c.first_name
-        and r.middle_name = c.middle_name
         and r.last_name = c.last_name
 	left join stage_election_candidates e
 		on c.candidate_id = e.candidate_id
+where r.last_name != 'WRITE IN VOTES'
 group by c.first_name, c.middle_name, c.last_name, r.office, r.district
 order by election_id;
 
@@ -159,9 +171,96 @@ from results_csv r
 		on r.office = e.office_id
 		and r.district = e.district
 order by r.office, r.district;
+       
+-- select from results_csv for insert into candidates
+-- insert into candidates (first_name, middle_name, last_name, suffix, party_id)
+select r.first_name, r.middle_name, r.last_name, r.suffix, r.party
+from results_csv r
+	left join stage_candidates c
+		on r.first_name = c.first_name
+        and r.middle_name = c.middle_name
+        and r.last_name = c.last_name
+group by r.first_name, r.middle_name, r.last_name;
 
 update results_csv
-set district = replace(district, district, cast(district as unsigned));
+set middle_name = ''
+where middle_name is null;
+       
+-- select from results_csv for insert into stage_results
+select c.candidate_id, e.election_id, r.first_name, r.middle_name, r.last_name, r.suffix, r.party, r.office, r.district, sum(r.votes) as totalVotes
+from results_csv r
+	left join candidates c
+		on r.first_name = c.first_name
+        and r.middle_name = c.middle_name
+        and r.last_name = c.last_name
+	left join stage_elections e
+		on r.office = e.office_id
+        and r.district = e.district
+group by r.first_name, r.middle_name, r.last_name, r.office, r.district
+order by office, district;
+
+-- select for insert into elections_candidates
+-- insert into election_candidates (election_id, candidate_id)
+select e.election_id, c.candidate_id
+from results_csv r
+	left join candidates c
+		on r.first_name = c.first_name
+        and r.middle_name = c.middle_name
+        and r.last_name = c.last_name
+	left join stage_elections e
+		on r.office = e.office_id
+        and r.district = e.district
+group by e.election_id, c.candidate_id;
+
+-- fix candidate matching resulting form null middle name
+update candidates
+set middle_name = null
+where middle_name = '';
+
+-- find candidates who are showing up with no candidate_id
+select *
+from candidates
+where last_name in (
+	select r.last_name
+	from results_csv r
+		left join stage_candidates c
+			on r.first_name = c.first_name
+			and r.middle_name = c.middle_name
+			and r.last_name = c.last_name
+		left join stage_elections e
+			on r.office = e.office_id
+			and r.district = e.district
+	where r.last_name != 'WRITE IN VOTES'
+	and c.candidate_id is null
+	group by r.first_name, r.middle_name, r.last_name, r.office, r.district);
+    
+    select *
+    from results_csv rr
+		left join elections ee
+			on ;
+    
+-- select for insert into election_results
+select c.candidate_id, e.election_id, sum(r.votes) as totalVotes,
+	if (sum(r.votes) = (
+			select max(rr.votes)
+			from results_csv rr
+				left join candidates cc
+				on rr.first_name = cc.first_name
+				and rr.middle_name = cc.middle_name
+				and rr.last_name = cc.last_name
+			left join stage_elections ee
+				on rr.office = ee.office_id
+				and rr.district = ee.district
+			group by ee.election_id)) as winner
+from results_csv r
+	left join candidates c
+		on r.first_name = c.first_name
+        and r.middle_name = c.middle_name
+        and r.last_name = c.last_name
+	left join stage_elections e
+		on r.office = e.office_id
+        and r.district = e.district
+group by e.election_id, c.candidate_id;
 
 -- TODO
 -- give write ins candidate_id of 0

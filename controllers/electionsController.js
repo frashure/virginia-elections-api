@@ -107,7 +107,7 @@ buildElections = (results) => {
 
             elections[k].candidates.push(candidate);
 
-            if (results[i].num_votes != null) {
+            if (results[i].num_votes != null && results[i].winner != null) {
 
                 let winner;
 
@@ -288,6 +288,7 @@ var controller = {
         LEFT JOIN election_results er
             ON c.candidate_id = er.candidate_id
         WHERE year(date) = 2019
+        GROUP BY e.election_id, c.candidate_id
         ORDER BY e.election_id`, (err, results) => {
                 if (err) {
                     console.log(err);
