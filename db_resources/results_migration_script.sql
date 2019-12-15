@@ -124,4 +124,45 @@ where r.election_type = 'general'
 and r.last_name != 'write in votes'
 group by r.sbe_id
 order by r.office, r.district;
-	
+
+select election_id, count(candidate_id)
+from stage_election_candidates
+group by election_id;
+
+insert into candidates (candidate_id, first_name, middle_name, last_name, suffix, party_id)
+select candidate_id, first_name, middle_name, last_name, suffix, party
+from stage_candidates;
+
+insert into elections (election_id, date, type, district, office_id)
+select election_id, date, type, district, office_id
+from stage_elections;
+
+insert into election_candidates (election_id, candidate_id)
+select election_id, candidate_id
+from stage_election_candidates;
+
+-- select all candidates, results, and corresponding candidate and election IDs for insert into results table
+select c.candidate_id, c.sbe_id, e.election_id, r.first_name, r.middle_name, r.last_name, r.party, r.office, r.district, sum(r.votes)
+from results_csv r 
+	left join stage_candidates c 
+		on r.first_name = c.first_name
+        and r.middle_name = c.middle_name
+        and r.last_name = c.last_name
+	left join stage_election_candidates e
+		on c.candidate_id = e.candidate_id
+group by c.first_name, c.middle_name, c.last_name, r.office, r.district
+order by election_id;
+
+select distinct e.election_id, r.office, r.district
+from results_csv r 
+	left join stage_elections e
+		on r.office = e.office_id
+		and r.district = e.district
+order by r.office, r.district;
+
+update results_csv
+set district = replace(district, district, cast(district as unsigned));
+
+-- TODO
+-- give write ins candidate_id of 0
+-- add write in to stage_election_candidates for whichever election has write ins 
