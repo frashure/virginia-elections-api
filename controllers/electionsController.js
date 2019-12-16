@@ -107,16 +107,19 @@ buildElections = (results) => {
 
             elections[k].candidates.push(candidate);
 
-            if (results[i].num_votes != null && results[i].winner != null) {
+            if (results[i].num_votes != null) {
 
-                let winner;
+                let winner = null;
 
-                switch(results[i].winner) {
+                if (results[i].winner != null) {
+                    switch(results[i].winner) {
                     case 0: winner = 'no';
                     break;
                     case 1: winner = 'yes';
                     break;
+                    }
                 }
+
 
                 let result = {
                     candidate: results[i].first_name + ' ' + results[i].last_name,
