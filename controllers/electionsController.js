@@ -286,7 +286,8 @@ var controller = {
         LEFT JOIN parties p
             ON c.party_id = p.party_id
         LEFT JOIN election_results er
-            ON c.candidate_id = er.candidate_id
+            ON ec.election_id = er.election_id
+            AND ec.candidate_id = er.candidate_id
         WHERE year(date) = 2019
         GROUP BY e.election_id, c.candidate_id
         ORDER BY e.election_id`, (err, results) => {
