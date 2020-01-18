@@ -240,18 +240,8 @@ where last_name in (
 			on ;
     
 -- select for insert into election_results
-select c.candidate_id, e.election_id, sum(r.votes) as totalVotes,
-	if (sum(r.votes) = (
-			select max(rr.votes)
-			from results_csv rr
-				left join candidates cc
-				on rr.first_name = cc.first_name
-				and rr.middle_name = cc.middle_name
-				and rr.last_name = cc.last_name
-			left join stage_elections ee
-				on rr.office = ee.office_id
-				and rr.district = ee.district
-			group by ee.election_id)) as winner
+insert into election_results (candidate_id, election_id, num_votes)
+select c.candidate_id, e.election_id, sum(r.votes)
 from results_csv r
 	left join candidates c
 		on r.first_name = c.first_name
