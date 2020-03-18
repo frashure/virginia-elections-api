@@ -10,7 +10,7 @@ const lploudoun = require('../controllers/lpLoudoun');
 
 var test = path.join(__dirname, '../test/test.html');
 
-var whitelist = ['http://76.104.47.157']
+var whitelist = ['127.0.0.1:8080']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
