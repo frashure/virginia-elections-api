@@ -9,7 +9,6 @@ let port = process.env.PORT || 3000;
 
 app.use(helmet());
 app.use(cors());
-app.options('*', cors());
 
 app.listen(port, () => {
     console.log('Virginia Elections API server listening on port ' + port);

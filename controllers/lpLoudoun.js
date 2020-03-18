@@ -11,6 +11,7 @@ const controller = {
                 res.send(err);
             }
             else {
+                res.set('Access-Control-Allow-Origin', '*')
                 res.send(200)
                 }
         });
