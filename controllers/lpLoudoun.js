@@ -5,7 +5,7 @@ const controller = {
 
     signup: (req, res) => {
         var date = 
-        db.query(`INSERT INTO LPLC VALUES ?, ?, ?, now()`, [req.params.fName, req.params.lName, req.params.email], (err, results) => {
+        db.query(`INSERT INTO LPLC VALUES (firstName, lastName, email, signupDate) ?, ?, ?, now()`, [req.params.fName, req.params.lName, req.params.email], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
