@@ -10,6 +10,12 @@ let port = process.env.PORT || 3000;
 app.use(helmet());
 app.use(cors());
 
+// temporary logging
+app.use((req, res, next) => {
+    console.log('%O', req);
+    next();
+   });
+
 app.listen(port, () => {
     console.log('Virginia Elections API server listening on port ' + port);
 });
