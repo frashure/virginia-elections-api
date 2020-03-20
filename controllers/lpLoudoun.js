@@ -10,8 +10,12 @@ const controller = {
                 res.send(err);
             }
             else {
-                res.set('Access-Control-Allow-Origin', '*')
-                res.send(200)
+                res.set('Access-Control-Allow-Origin', '*');
+                res.status(200);
+                let resBody = {
+                    "resCode": 2000
+                };
+                res.send("Good");
                 }
         });
     }
