@@ -15,7 +15,7 @@ const controller = {
                 let resBody = {
                     "resCode": 2000
                 };
-                res.send("Good");
+                res.send(resBody);
                 }
         });
     }
