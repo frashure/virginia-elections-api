@@ -18,6 +18,28 @@ const controller = {
                 res.send(resBody);
                 }
         });
+    },
+
+    list: (req, res) => {
+        db.query('SELECT * FROM lplc');
+        var members = [];
+        if (err) {
+            console.log(err);
+            res.send(err);
+        }
+        else {
+            for (let i = 1; i < res.length; i++) {
+                person = {
+                    firstName: res.firstName,
+                    lastName: res.lastName,
+                    email: res.email,
+                    resident: res.resident,
+                    date: res.signupDate
+                }
+                members.push(person);
+            }
+        }
+        res.json(members);
     }
 
 }
