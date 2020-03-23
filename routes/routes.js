@@ -25,7 +25,7 @@ router.use('/elections', elections);
 router.use('/districts', districts);
 router.use('/test', express.static(test));
 router.post('/lploudoun', lploudoun.signup);
-router.get('/lploudoun', lploudoun.list)
+router.get('/lploudoun', checkKey(), lploudoun.list)
 router.use('/lploudoun/first/:fName/last/:lName/email/:email', lploudoun.signup);
 router.use('/', (req, res) => {res.redirect('https://github.com/frashure/virginia-elections-api')});
 

@@ -21,7 +21,7 @@ const controller = {
     },
 
     list: (req, res) => {
-        db.query('SELECT * FROM lplc', (err, results) => {
+        db.query('SELECT * FROM lplc', (err, res) => {
             var members = [];
             if (err) {
                 console.log(err);
