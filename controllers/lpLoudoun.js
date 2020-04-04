@@ -10,10 +10,38 @@ const controller = {
                 res.send(err);
             }
             else {
-                res.set('Access-Control-Allow-Origin', '*')
-                res.send(200)
+                res.set('Access-Control-Allow-Origin', '*');
+                res.status(200);
+                let resBody = {
+                    "resCode": 2000
+                };
+                res.send(resBody);
                 }
         });
+    },
+
+    list: (req, res) => {
+        db.query('SELECT * FROM lplc', (err, res) => {
+            var members = [];
+            if (err) {
+                console.log(err);
+                res.send(err);
+            }
+            else {
+                for (let i = 1; i < res.length; i++) {
+                    person = {
+                        firstName: res.firstName,
+                        lastName: res.lastName,
+                        email: res.email,
+                        resident: res.resident,
+                        date: res.signupDate
+                    }
+                    members.push(person);
+                }
+            }
+            res.json(members);
+            });
+
     }
 
 }
