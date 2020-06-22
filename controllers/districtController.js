@@ -2,7 +2,7 @@ const request = require('request');
 
 var controller = {
     getDistricts: (req, res) => {
-        let address = req.params.address;
+        let address = req.body.address;
         var payload = 'https://www.googleapis.com/civicinfo/v2/representatives?key='+process.env.CIVIC_KEY+'&address='+address;
             request(payload, (error, response, body) => {
                 body = JSON.parse(body);
