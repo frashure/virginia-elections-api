@@ -24,18 +24,9 @@ router.use('/candidates', candidates);
 router.use('/elections', elections);
 router.use('/districts', districts);
 router.use('/test', express.static(test));
-router.use('/lploudoun', lploudoun.signup);
-// router.get('/lploudoun', checkKey(), lploudoun.list)
-router.use('/lploudoun/first/:fName/last/:lName/email/:email', lploudoun.signup);
+router.post('/lploudoun', lploudoun.signup);
+router.get('/lploudoun', lploudoun.checkKey, lploudoun.list)
+// router.post('/lploudoun/first/:fName/last/:lName/email/:email', lploudoun.signup);
 router.use('/', (req, res) => {res.redirect('https://github.com/frashure/virginia-elections-api')});
-
-function checkKey(req, res, next) {
-    if (req.body.key === process.env.KEY) {
-        next()
-    }
-    else {
-        res.send(403)
-    }
-}
 
 module.exports = router;
