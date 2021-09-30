@@ -231,7 +231,7 @@ var controller = {
          LEFT JOIN parties p
                 ON e.party_id = p.party_id
         WHERE office_id = ?
-        ORDER BY election_id`, [req.params.office], (err, results) => {
+        ORDER BY election_id`, [req.body.office], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -249,7 +249,7 @@ var controller = {
             LEFT JOIN parties p
                 ON e.party_id = p.party_id
         WHERE year(date) = ?
-        ORDER BY election_id`, [req.params.year], (err, results) => {
+        ORDER BY election_id`, [req.body.year], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -267,7 +267,7 @@ var controller = {
                 LEFT JOIN parties p
                     ON e.party_id = p.party_id
             WHERE office_id = ? 
-            AND district = ?`, [req.params.office, req.params.district], (err, results) => {
+            AND district = ?`, [req.body.office, req.body.district], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -318,7 +318,7 @@ var controller = {
             ON c.candidate_id = er.candidate_id
         WHERE year(date) = 2019
         AND office_id = ?
-        ORDER BY e.election_id`, [req.params.office], (err, results) => {
+        ORDER BY e.election_id`, [req.body.office], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -344,7 +344,7 @@ var controller = {
         WHERE year(date) = 2019
         AND office_id = ?
         AND district = ?
-        ORDER BY e.election_id`, [req.params.office, req.params.district], (err, results) => {
+        ORDER BY e.election_id`, [req.body.office, req.body.district], (err, results) => {
             if (err) {
                 console.log(err);
                 res.send(err);
@@ -357,7 +357,7 @@ var controller = {
     }, // end getCandidatesByDistrict
 
     getElectionsCandidatesByAddress: (req, res) => {
-        let address = req.params.address;
+        let address = req.body.address;
         var payload = 'https://www.googleapis.com/civicinfo/v2/representatives?key='+process.env.CIVIC_KEY+'&address='+address;
             request(payload, (error, response, body) => {
                 body = JSON.parse(body);
