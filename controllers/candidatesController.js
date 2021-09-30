@@ -39,7 +39,7 @@ var controller = {
             select election_id
             from elections
             where office_id = ?
-            ORDER BY district)`, [req.params.office], (err, results) => {
+            ORDER BY district)`, [req.body.office], (err, results) => {
                 if (err) {
                     console.log(err);
                     res.send(err);
@@ -73,7 +73,7 @@ var controller = {
                 FROM elections
                 WHERE office_id = ?
                 AND district = ?
-            ))`, [req.params.office, req.params.district], (err, results) => {
+            ))`, [req.body.office, req.body.district], (err, results) => {
                 if (err) {
                     console.log(err);
                     res.send(err);
@@ -95,7 +95,7 @@ var controller = {
     }, // end getCandidatesByDistrict
 
     getCandidatesByAddress: (req, res) => {
-        let address = req.params.address;
+        let address = req.body.address;
         var payload = 'https://www.googleapis.com/civicinfo/v2/representatives?key='+process.env.CIVIC_KEY+'&address='+address;
             request(payload, (error, response, body) => {
                 body = JSON.parse(body);
