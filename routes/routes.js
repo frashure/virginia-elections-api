@@ -5,7 +5,6 @@ const path = require('path');
 const candidates = require('./candidateRoutes');
 const elections = require('./electionRoutes');
 const districts = require('./districtRoutes');
-const lploudoun = require('../controllers/lpLoudoun');
 
 var test = path.join(__dirname, '../test/test.html');
 

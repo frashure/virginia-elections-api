@@ -20,8 +20,7 @@ app.listen(port, () => {
     console.log('Virginia Elections API server listening on port ' + port);
 });
 
-app.use(bodyparser.urlencoded({ extended: false }));
-app.use(bodyparser.json());
+app.use(express.json());
 
 var routes = require('./routes/routes.js');
 app.use('/', routes);
